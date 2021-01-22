@@ -1,4 +1,4 @@
-# Fullstack Dev install script
+# Fullstack Dev Install Script
 This script is to install all the libraries/packages I normally need to add on a fresh install.
 The process to set up a new minimal image of ubuntu/linux machine can be tedious and slow,
 so thats the main reason I created this script for me and my co-workers.
