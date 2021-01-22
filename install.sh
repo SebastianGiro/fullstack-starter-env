@@ -160,6 +160,9 @@ if [ "$OS" == "linux" ]; then
     else
         echo $ZSHRC_SOURCE | sudo tee -a ~/.zshrc
     fi
+    source ~/.bash_aliases
+    nvm install --lts
+    nvm use --lts
     # End install of NVM and aliases
 
     if $I_U_EXTRAS; then
