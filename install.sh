@@ -8,10 +8,14 @@ readonly BLUE='\033[0;34m'
 
 # INSTALL VARIABLES
 I_AUTO=false
+
+I_U_EXTRAS=true
 I_GIT=true
 I_TERM=true
 I_VSCODE=true
-I_U_EXTRAS=true
+
+I_CHROME=true
+I_OPERA=true
 
 # SET simple os var
 if [ "$OSTYPE" == "linux-gnu" ]; then
@@ -33,6 +37,9 @@ ask_for_install() {
     if ask_for "GIT"; then I_GIT=false; else I_GIT=true; fi
     if ask_for "Terminator/ITerm2"; then I_TERM=false; else I_TERM=true; fi
     if ask_for "VS Code"; then I_VSCODE=false; else I_VSCODE=true; fi
+    if ask_for "VS Code"; then I_VSCODE=false; else I_VSCODE=true; fi
+    if ask_for "Chrome"; then I_CHROME=false; else I_CHROME=true; fi
+    if ask_for "Opera"; then I_OPERA=false; else I_OPERA=true; fi
 }
 
 # spin() {
@@ -122,9 +129,12 @@ fi
 
 if [ "$OS" == "linux" ]; then
     sudo apt-get update
+    sudo apt-get install curl
+    sudo apt-get install wget
 
     if $I_U_EXTRAS; then
         sudo add-apt-repository multiverse
+        sudo apt-get update
         sudo apt-get install ubuntu-restricted-extras
     fi
     if $I_GIT; then
@@ -133,6 +143,46 @@ if [ "$OS" == "linux" ]; then
     if $I_TERM; then
         sudo apt-get install terminator
     fi
+    if $I_VSCODE; then
+        # sudo snap install --classic code
+        # Alternative without snap
+        wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
+        sudo install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/
+        # sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
+        echo 'deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main' | sudo tee /etc/apt/sources.list.d/vscode.list
+        sudo apt-get install apt-transport-https
+        sudo apt-get update
+        sudo apt-get install code # or code-insiders
+        rm packages.microsoft.gpg
+    fi
+
+    if $I_CHROME; then
+        wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+        echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' | sudo tee /etc/apt/sources.list.d/google-chrome.list
+        sudo apt-get update
+        sudo apt-get install google-chrome-stable
+    fi
+    if $I_OPERA; then
+        wget -qO- https://deb.opera.com/archive.key | sudo apt-key add -
+        sudo add-apt-repository "deb [arch=i386,amd64] https://deb.opera.com/opera-stable/ stable non-free"
+        sudo apt install opera-stable
+        # Patch opera to latest ffmpeg video codecs
+        URL=`curl https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/latest`
+        FFMPEGVER=${URL%\"*}
+        FFMPEGVER=${FFMPEGVER##*/}
+        FFMPEGZIP=${FFMPEGVER}-linux-x64.zip
+
+        # download library
+        curl -L -O https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/${FFMPEGVER}/${FFMPEGZIP}
+        unzip ${FFMPEGZIP}
+        rm ${FFMPEGZIP}
+
+        # overwrite opera libffmpeg
+        sudo mkdir /usr/lib/x86_64-linux-gnu/opera/lib_extra
+        sudo mv libffmpeg.so /usr/lib/x86_64-linux-gnu/opera/lib_extra
+    fi
+
+    sudo apt-get autoremove
 fi
 
 # spin
