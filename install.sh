@@ -139,12 +139,35 @@ if [ "$OS" == "linux" ]; then
     sudo apt-get update
     sudo apt-get install curl
     sudo apt-get install wget
+    # sudo apt-get install nodejs
+    # sudo apt-get install npm
+
+    # Install NVM and aliases
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
+    if grep -q SomeString "$File"; then
+        Some Actions # SomeString was found
+    fi
+    NVM_EXPORT='export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"'
+    NVM_EXPORT2='[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm'
+
+    if grep -q "export NVM_DIR=" ~/.bash_aliases; then :;
+    else
+        echo $NVM_EXPORT | sudo tee -a ~/.bash_aliases
+        echo $NVM_EXPORT2 | sudo tee -a ~/.bash_aliases
+    fi
+    ZSHRC_SOURCE='source ~/.bash_aliases'
+    if grep -q "$ZSHRC_SOURCE" ~/.zshrc; then :;
+    else
+        echo $ZSHRC_SOURCE | sudo tee -a ~/.zshrc
+    fi
+    # End install of NVM and aliases
 
     if $I_U_EXTRAS; then
         sudo add-apt-repository multiverse
         sudo apt-get update
         sudo apt-get install ubuntu-restricted-extras
     fi
+
     if $I_GIT; then
         sudo apt-get install git-all
     fi
