@@ -1,4 +1,6 @@
 #!/bin/bash
+readonly VERSION=0.1
+
 readonly NC='\033[0m' # No Color
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
@@ -11,8 +13,10 @@ I_AUTO=false
 
 I_U_EXTRAS=true
 I_GIT=true
+I_YARN=true
 I_TERM=true
 I_VSCODE=true
+I_DOCKER=true
 
 I_CHROME=true
 I_OPERA=true
@@ -35,9 +39,11 @@ ask_for_install() {
     fi
 
     if ask_for "GIT"; then I_GIT=false; else I_GIT=true; fi
+    if ask_for "Yarn"; then I_YARN=false; else I_YARN=true; fi
     if ask_for "Terminator/ITerm2"; then I_TERM=false; else I_TERM=true; fi
     if ask_for "VS Code"; then I_VSCODE=false; else I_VSCODE=true; fi
-    if ask_for "VS Code"; then I_VSCODE=false; else I_VSCODE=true; fi
+    if ask_for "Docker & Compose"; then I_DOCKER=false; else I_DOCKER=true; fi
+
     if ask_for "Chrome"; then I_CHROME=false; else I_CHROME=true; fi
     if ask_for "Opera"; then I_OPERA=false; else I_OPERA=true; fi
 }
@@ -116,8 +122,10 @@ ask_for() {
 ####################################################################################
 ###### MAIN CODE ###################################################################
 ####################################################################################
-
+echo -e "${YELLOW}######################################################${NC}"
+echo -e "Version: ${GREEN}$VERSION${NC}"
 echo -e "Running on ${RED}$OS${NC}"
+echo -e "${YELLOW}######################################################${NC}"
 
 # ASK to install recommended or manual select
 if ask_for "RECOMMENDED?"; then I_AUTO=false; else I_AUTO=true; fi
@@ -140,6 +148,9 @@ if [ "$OS" == "linux" ]; then
     if $I_GIT; then
         sudo apt-get install git-all
     fi
+    if $I_YARN; then
+        npm i -g yarn
+    fi
     if $I_TERM; then
         sudo apt-get install terminator
     fi
@@ -155,6 +166,24 @@ if [ "$OS" == "linux" ]; then
         sudo apt-get install code # or code-insiders
         rm packages.microsoft.gpg
     fi
+    if $I_DOCKER; then
+        sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+        sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+        sudo apt-get update
+        apt-cache policy docker-ce
+        sudo apt-get install docker-ce
+        sudo usermod -aG docker ${USER}
+        # su - ${USER}
+
+        # Get latest compose
+        COMPOSE_URL=`curl https://github.com/docker/compose/releases/latest`
+        COMPOSE_VER=${COMPOSE_URL%\"*}
+        COMPOSE_VER=${COMPOSE_VER##*/}
+
+        sudo curl -L "https://github.com/docker/compose/releases/download/${COMPOSE_VER}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+    fi
 
     if $I_CHROME; then
         wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
@@ -165,7 +194,7 @@ if [ "$OS" == "linux" ]; then
     if $I_OPERA; then
         wget -qO- https://deb.opera.com/archive.key | sudo apt-key add -
         sudo add-apt-repository "deb [arch=i386,amd64] https://deb.opera.com/opera-stable/ stable non-free"
-        sudo apt install opera-stable
+        sudo apt-get install opera-stable
         # Patch opera to latest ffmpeg video codecs
         URL=`curl https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/latest`
         FFMPEGVER=${URL%\"*}
