@@ -142,6 +142,12 @@ if [ "$OS" == "linux" ]; then
     # sudo apt-get install nodejs
     # sudo apt-get install npm
 
+    if $I_U_EXTRAS; then
+        sudo add-apt-repository multiverse
+        sudo apt-get update
+        sudo apt-get install ubuntu-restricted-extras
+    fi
+
     # Install NVM and aliases
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
     if grep -q SomeString "$File"; then
@@ -164,12 +170,6 @@ if [ "$OS" == "linux" ]; then
     nvm install --lts
     nvm use --lts
     # End install of NVM and aliases
-
-    if $I_U_EXTRAS; then
-        sudo add-apt-repository multiverse
-        sudo apt-get update
-        sudo apt-get install ubuntu-restricted-extras
-    fi
 
     if $I_GIT; then
         sudo apt-get install git-all

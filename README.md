@@ -1,8 +1,8 @@
 ### Scripts list
 - CURL
 - WGET
-- NVM & Node
 - Ubuntu extras
+- NVM & Node
 - GIT
 - YARN
 - Terminator/ITerm2
