@@ -1,8 +1,8 @@
 ### Scripts list
-- CURL
-- WGET
+- CURL (Mandatory)
+- WGET (Mandatory)
 - Ubuntu extras
-- NVM & Node
+- NVM & Node (Mandatory)
 - GIT
 - YARN
 - Terminator/ITerm2
@@ -10,3 +10,5 @@
 - Docker & Compose
 - Chrome
 - Opera & Opera codec fix
+
+* Mandatory means it's not optional
